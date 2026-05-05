@@ -1,0 +1,12 @@
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
+node_modules/
+
+# 系统/编辑器残留
+desktop.ini
+
+# 个人文案,不公开
+锚 · Anchor 发布文案 · 四个平台.md

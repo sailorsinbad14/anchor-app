@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>锚 · Anchor</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  
+  :root {
+    --bg: #1a1d23;
+    --bg-card: #242830;
+    --bg-card-hover: #2a2f38;
+    --text: #e8e6e3;
+    --text-dim: #8a8680;
+    --text-faint: #5a5650;
+    --accent: #c4a574;
+    --accent-soft: #8a7758;
+    --warm: #d4a574;
+    --calm: #7a9b8e;
+    --line: #32363f;
+    --danger: #b87a7a;
+  }
+  
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+    line-height: 1.7;
+    min-height: 100vh;
+    overscroll-behavior: none;
+  }
+  
+  body {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 24px 20px 80px;
+  }
+  
+  /* 顶部 */
+  .header {
+    text-align: center;
+    padding: 16px 0 32px;
+  }
+  .header h1 {
+    font-size: 22px;
+    font-weight: 300;
+    letter-spacing: 8px;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .header .subtitle {
+    font-size: 12px;
+    color: var(--text-faint);
+    letter-spacing: 2px;
+  }
+  
+  /* 主页面四个入口 */
+  .home-grid {
+    display: grid;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  
+  .entry-card {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 22px 20px;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .entry-card:active { background: var(--bg-card-hover); }
+  
+  .entry-card.urgent {
+    border-color: var(--accent-soft);
+    background: linear-gradient(135deg, #2a2520 0%, #242830 100%);
+  }
+  
+  .entry-icon {
+    font-size: 28px;
+    width: 44px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  
+  .entry-text { flex: 1; }
+  .entry-title {
+    font-size: 16px;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .entry-desc {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+  
+  /* 页面切换 */
+  .page { display: none; }
+  .page.active { display: block; }
+  
+  .back-btn {
+    color: var(--text-dim);
+    font-size: 14px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px 0;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .back-btn:active { color: var(--text); }
+  
+  .page-title {
+    font-size: 20px;
+    font-weight: 400;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+  .page-subtitle {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 28px;
+    line-height: 1.6;
+  }
+  
+  /* 应急流程 */
+  .step-card {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 24px 20px;
+    margin-bottom: 16px;
+  }
+  .step-num {
+    font-size: 12px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+  .step-title {
+    font-size: 17px;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  .step-body {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.7;
+  }
+  .step-body p { margin-bottom: 8px; }
+  
+  /* 呼吸引导 */
+  .breath-container {
+    text-align: center;
+    padding: 32px 0;
+  }
+  .breath-circle {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(196, 165, 116, 0.15) 0%, rgba(196, 165, 116, 0.05) 70%, transparent 100%);
+    border: 2px solid var(--accent-soft);
+    margin: 32px auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 4s ease-in-out;
+  }
+  .breath-circle.inhale { transform: scale(1.3); transition-duration: 4s; }
+  .breath-circle.hold { transform: scale(1.3); transition-duration: 2s; }
+  .breath-circle.exhale { transform: scale(0.8); transition-duration: 8s; }
+  
+  .breath-text {
+    font-size: 18px;
+    color: var(--accent);
+    letter-spacing: 4px;
+  }
+  .breath-count {
+    font-size: 14px;
+    color: var(--text-dim);
+    margin-top: 16px;
+  }
+  
+  .btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    background: var(--bg-card);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    font-size: 15px;
+    cursor: pointer;
+    margin-top: 12px;
+    transition: background 0.2s;
+    font-family: inherit;
+  }
+  .btn:active { background: var(--bg-card-hover); }
+  .btn.primary {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: #1a1d23;
+  }
+  .btn.primary:active { background: var(--accent); }
+  .btn.danger {
+    color: var(--danger);
+    border-color: rgba(184, 122, 122, 0.3);
+  }
+  
+  /* 表单 */
+  .form-group {
+    margin-bottom: 20px;
+  }
+  .form-label {
+    display: block;
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+  .form-hint {
+    font-size: 11px;
+    color: var(--text-faint);
+    margin-top: 4px;
+    line-height: 1.5;
+  }
+  textarea, input {
+    width: 100%;
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 12px;
+    color: var(--text);
+    font-size: 15px;
+    font-family: inherit;
+    resize: vertical;
+  }
+  textarea { min-height: 80px; }
+  textarea:focus, input:focus {
+    outline: none;
+    border-color: var(--accent-soft);
+  }
+  
+  /* 历史记录 */
+  .record-card {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .record-time {
+    font-size: 11px;
+    color: var(--text-faint);
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+  }
+  .record-field {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+    line-height: 1.6;
+  }
+  .record-field strong {
+    color: var(--accent);
+    font-weight: normal;
+    margin-right: 6px;
+  }
+  
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-faint);
+    font-size: 14px;
+    line-height: 1.8;
+  }
+  
+  /* 提示文字 */
+  .reminder-text {
+    background: rgba(196, 165, 116, 0.08);
+    border-left: 3px solid var(--accent-soft);
+    padding: 14px 16px;
+    margin: 20px 0;
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.7;
+    border-radius: 4px;
+  }
+  
+  .crisis-card {
+    background: rgba(184, 122, 122, 0.08);
+    border: 1px solid rgba(184, 122, 122, 0.3);
+    border-radius: 10px;
+    padding: 16px;
+    margin-top: 24px;
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.7;
+  }
+  .crisis-card .title {
+    color: var(--danger);
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+  
+  /* 底部说明 */
+  .footer-note {
+    margin-top: 40px;
+    padding: 20px;
+    border-top: 1px solid var(--line);
+    font-size: 11px;
+    color: var(--text-faint);
+    text-align: center;
+    line-height: 1.8;
+  }
+  
+  /* 计时器 */
+  .timer {
+    text-align: center;
+    font-size: 48px;
+    color: var(--accent);
+    font-weight: 200;
+    letter-spacing: 4px;
+    margin: 32px 0 16px;
+    font-variant-numeric: tabular-nums;
+  }
+  .timer-label {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 13px;
+    margin-bottom: 32px;
+  }
+  
+  /* 反思页 */
+  .reflection-section {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .reflection-q {
+    font-size: 14px;
+    color: var(--accent);
+    margin-bottom: 12px;
+    line-height: 1.6;
+  }
+  .reflection-q-hint {
+    font-size: 12px;
+    color: var(--text-faint);
+    margin-top: -8px;
+    margin-bottom: 12px;
+    line-height: 1.6;
+  }
+  
+  /* 弹窗 */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg-card);
+    border: 1px solid var(--accent-soft);
+    color: var(--text);
+    padding: 12px 24px;
+    border-radius: 24px;
+    font-size: 14px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 1000;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; }
+  
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>锚</h1>
+  <div class="subtitle">A N C H O R</div>
+</div>
+
+<!-- 主页 -->
+<div id="page-home" class="page active">
+  <div class="home-grid">
+    
+    <div class="entry-card urgent" onclick="goPage('emergency')">
+      <div class="entry-icon">🌊</div>
+      <div class="entry-text">
+        <div class="entry-title">我现在很焦虑</div>
+        <div class="entry-desc">浪来了。先稳住身体,再处理思绪。</div>
+      </div>
+    </div>
+    
+    <div class="entry-card" onclick="goPage('reflect')">
+      <div class="entry-icon">📓</div>
+      <div class="entry-text">
+        <div class="entry-title">今日 3 行</div>
+        <div class="entry-desc">每天 2 分钟,长出觉察的肌肉。</div>
+      </div>
+    </div>
+    
+    <div class="entry-card" onclick="goPage('record')">
+      <div class="entry-icon">✦</div>
+      <div class="entry-text">
+        <div class="entry-title">记录这次焦虑</div>
+        <div class="entry-desc">看见模式,而不是被模式支配。</div>
+      </div>
+    </div>
+    
+    <div class="entry-card" onclick="goPage('history')">
+      <div class="entry-icon">⌬</div>
+      <div class="entry-text">
+        <div class="entry-title">回看</div>
+        <div class="entry-desc">过去的浪,都退去了。</div>
+      </div>
+    </div>
+    
+  </div>
+  
+  <div class="reminder-text">
+    这不是一个让你"变好"的工具。它是一个让你在难受的时候,有个地方可以待一会儿、不至于被冲走的锚。
+  </div>
+  
+  <div class="crisis-card">
+    <div class="title">如果你正在考虑伤害自己</div>
+    请放下这个工具,直接拨打:<br>
+    <strong>北京心理危机干预中心</strong> 010-82951332<br>
+    <strong>希望24热线</strong> 400-161-9995<br>
+    这件事比任何 App 都重要。
+  </div>
+  
+  <div class="footer-note">
+    所有数据只存在你的手机里,不会上传到任何地方。<br>
+    这个工具不能替代专业心理咨询。<br>
+    如果焦虑长期持续,请寻求专业帮助。
+  </div>
+</div>
+
+<!-- 焦虑应急 -->
+<div id="page-emergency" class="page">
+  <button class="back-btn" onclick="goPage('home')">← 返回</button>
+  <div class="page-title">浪来了</div>
+  <div class="page-subtitle">现在你的身体在响警报。<br>不需要立刻"想清楚",先让身体稳下来。</div>
+  
+  <div class="step-card">
+    <div class="step-num">第 一 步</div>
+    <div class="step-title">先呼吸,4-2-8 节奏</div>
+    <div class="step-body">
+      <p>呼气比吸气长,能直接降低焦虑。</p>
+      <p>不是玄学,是神经系统的物理机制。</p>
+    </div>
+    <button class="btn primary" onclick="startBreathing()">开始呼吸引导</button>
+  </div>
+  
+  <div class="step-card">
+    <div class="step-num">第 二 步</div>
+    <div class="step-title">把手机放到另一个房间</div>
+    <div class="step-body">
+      <p>反复刷手机看消息,会让大脑学到:"焦虑→刷手机→缓解"。</p>
+      <p>这个回路被强化得越多,下次焦虑来得越快、越猛。</p>
+      <p>给自己 45 分钟,期间手机不在身边。</p>
+    </div>
+    <button class="btn" onclick="startTimer(45)">设 45 分钟离机时间</button>
+  </div>
+  
+  <div class="step-card">
+    <div class="step-num">第 三 步</div>
+    <div class="step-title">动起来</div>
+    <div class="step-body">
+      <p>焦虑能量不会凭空消失,要么消耗你,要么从身体释放出去。</p>
+      <p>下楼走路,去海边,做几个深蹲都行。</p>
+      <p>不需要"运动",只需要"动"。</p>
+    </div>
+  </div>
+  
+  <div class="step-card">
+    <div class="step-num">第 四 步</div>
+    <div class="step-title">写下来</div>
+    <div class="step-body">
+      <p>脑子里反复循环的念头,一旦被写出来,循环就断了。</p>
+      <p>不修饰、不整理、不要工整。脑子里有什么写什么。</p>
+    </div>
+    <button class="btn" onclick="goPage('record')">去记录这次焦虑</button>
+  </div>
+  
+  <div class="reminder-text">
+    重要提醒:焦虑的浪有自己的生命周期。<br>
+    一个不被行动喂养的焦虑高峰,通常 90 秒到几分钟就开始衰减。<br>
+    现在最难的事情是:什么都不做,只是感受它过去。<br>
+    每做到一次,你的神经系统就重新校准一点。
+  </div>
+</div>
+
+<!-- 呼吸引导 -->
+<div id="page-breathing" class="page">
+  <button class="back-btn" onclick="stopBreathing(); goPage('emergency')">← 返回</button>
+  <div class="page-title">呼吸</div>
+  <div class="page-subtitle">跟着圆圈的节奏。<br>用鼻子吸气,屏住,然后用嘴巴慢慢呼出。</div>
+  
+  <div class="breath-container">
+    <div id="breath-circle" class="breath-circle">
+      <div id="breath-text" class="breath-text">准备</div>
+    </div>
+    <div id="breath-count" class="breath-count">第 0 / 5 轮</div>
+  </div>
+  
+  <button class="btn primary" id="breath-btn" onclick="toggleBreathing()">开始</button>
+  <button class="btn" onclick="stopBreathing(); goPage('emergency')">够了,退出</button>
+</div>
+
+<!-- 离机计时 -->
+<div id="page-timer" class="page">
+  <button class="back-btn" onclick="goPage('emergency')">← 返回</button>
+  <div class="page-title">离机时间</div>
+  <div class="page-subtitle">把手机放到看不见的地方。<br>不需要做任何事。如果焦虑很强,就感受它。</div>
+  
+  <div class="timer" id="timer-display">45:00</div>
+  <div class="timer-label" id="timer-label">点击开始</div>
+  
+  <button class="btn primary" id="timer-btn" onclick="toggleTimer()">开始</button>
+  <button class="btn danger" onclick="resetTimer()">重置</button>
+  
+  <div class="reminder-text">
+    倒计时不是为了"完成任务"。<br>
+    它只是给你一个不刷手机的理由。<br>
+    如果真的撑不住,提前结束也没关系——<br>
+    重要的是你尝试了。
+  </div>
+</div>
+
+<!-- 今日3行 -->
+<div id="page-reflect" class="page">
+  <button class="back-btn" onclick="goPage('home')">← 返回</button>
+  <div class="page-title">今日 3 行</div>
+  <div class="page-subtitle">不是日记,是觉察练习。<br>不要求文采,不要求深度。<br>诚实就够了。</div>
+  
+  <div class="reflection-section">
+    <div class="reflection-q">1. 今天我做的哪件事是出于真实?</div>
+    <div class="reflection-q-hint">真实 = 不是为了显得怎样、不是为了产生效果,就是想做。</div>
+    <textarea id="reflect-real" placeholder="可以写得很短,一句话也行"></textarea>
+  </div>
+  
+  <div class="reflection-section">
+    <div class="reflection-q">2. 今天我做的哪件事是出于表演或防御?</div>
+    <div class="reflection-q-hint">不是用来自责。看见就够了,看见多了行为自己会变。</div>
+    <textarea id="reflect-fake" placeholder="如果一时没想到,留空也可以"></textarea>
+  </div>
+  
+  <div class="reflection-section">
+    <div class="reflection-q">3. 如果今天可以重来一次,我想换掉哪一刻?</div>
+    <div class="reflection-q-hint">不是后悔,是练习"未来遇到类似时刻,我可以怎么选"。</div>
+    <textarea id="reflect-redo" placeholder=""></textarea>
+  </div>
+  
+  <button class="btn primary" onclick="saveReflection()">保存</button>
+</div>
+
+<!-- 焦虑记录 -->
+<div id="page-record" class="page">
+  <button class="back-btn" onclick="goPage('home')">← 返回</button>
+  <div class="page-title">记录这次焦虑</div>
+  <div class="page-subtitle">记录的目的不是分析对错,<br>是让你慢慢看清自己的模式。</div>
+  
+  <div class="form-group">
+    <label class="form-label">触发了什么?</label>
+    <textarea id="rec-trigger" placeholder="刚才发生了什么、想到了什么"></textarea>
+  </div>
+  
+  <div class="form-group">
+    <label class="form-label">身体的感受是什么?</label>
+    <textarea id="rec-body" placeholder="胸口发紧?喉咙堵?坐立不安?"></textarea>
+    <div class="form-hint">把感受跟身体连上,而不是只停在念头里。</div>
+  </div>
+  
+  <div class="form-group">
+    <label class="form-label">脑子里出现了什么念头?</label>
+    <textarea id="rec-thought" placeholder="比如:她是不是不喜欢我了、是不是我做错了什么"></textarea>
+    <div class="form-hint">写下来,念头就不在循环里了。</div>
+  </div>
+  
+  <div class="form-group">
+    <label class="form-label">我特别想做什么?</label>
+    <textarea id="rec-urge" placeholder="想发消息、想刷她朋友圈、想找人倾诉"></textarea>
+  </div>
+  
+  <div class="form-group">
+    <label class="form-label">我实际做了什么?</label>
+    <textarea id="rec-action" placeholder="不评价对错,只记录"></textarea>
+    <div class="form-hint">"想做什么"和"实际做什么"之间的距离,就是你的自由。</div>
+  </div>
+  
+  <button class="btn primary" onclick="saveRecord()">保存</button>
+</div>
+
+<!-- 历史 -->
+<div id="page-history" class="page">
+  <button class="back-btn" onclick="goPage('home')">← 返回</button>
+  <div class="page-title">回看</div>
+  <div class="page-subtitle">看见过去,是为了知道:<br>那些当时觉得过不去的时刻,后来都过去了。</div>
+  
+  <div id="history-list"></div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+  // ===== 页面切换 =====
+  function goPage(name) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+    window.scrollTo(0, 0);
+    if (name === 'history') renderHistory();
+  }
+  
+  // ===== Toast =====
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+  }
+  
+  // ===== 数据存储(纯本地)=====
+  function loadData(key) {
+    try {
+      const d = localStorage.getItem('anchor_' + key);
+      return d ? JSON.parse(d) : [];
+    } catch(e) { return []; }
+  }
+  function saveData(key, data) {
+    try {
+      localStorage.setItem('anchor_' + key, JSON.stringify(data));
+      return true;
+    } catch(e) { return false; }
+  }
+  
+  function nowStr() {
+    const d = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+  
+  // ===== 反思 =====
+  function saveReflection() {
+    const real = document.getElementById('reflect-real').value.trim();
+    const fake = document.getElementById('reflect-fake').value.trim();
+    const redo = document.getElementById('reflect-redo').value.trim();
+    
+    if (!real && !fake && !redo) {
+      toast('至少写一行再保存');
+      return;
+    }
+    
+    const data = loadData('reflections');
+    data.unshift({ time: nowStr(), real, fake, redo });
+    saveData('reflections', data);
+    
+    document.getElementById('reflect-real').value = '';
+    document.getElementById('reflect-fake').value = '';
+    document.getElementById('reflect-redo').value = '';
+    
+    toast('已保存');
+    setTimeout(() => goPage('home'), 800);
+  }
+  
+  // ===== 焦虑记录 =====
+  function saveRecord() {
+    const trigger = document.getElementById('rec-trigger').value.trim();
+    const body = document.getElementById('rec-body').value.trim();
+    const thought = document.getElementById('rec-thought').value.trim();
+    const urge = document.getElementById('rec-urge').value.trim();
+    const action = document.getElementById('rec-action').value.trim();
+    
+    if (!trigger && !body && !thought && !urge && !action) {
+      toast('至少写一项再保存');
+      return;
+    }
+    
+    const data = loadData('records');
+    data.unshift({ time: nowStr(), trigger, body, thought, urge, action });
+    saveData('records', data);
+    
+    ['rec-trigger','rec-body','rec-thought','rec-urge','rec-action'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    
+    toast('已记录。这一次,你看见它了。');
+    setTimeout(() => goPage('home'), 1500);
+  }
+  
+  // ===== 历史 =====
+  function renderHistory() {
+    const reflections = loadData('reflections');
+    const records = loadData('records');
+    const list = document.getElementById('history-list');
+    
+    if (reflections.length === 0 && records.length === 0) {
+      list.innerHTML = `<div class="empty-state">还没有记录。<br>不着急。<br>需要的时候它就在这里。</div>`;
+      return;
+    }
+    
+    let html = '';
+    
+    if (records.length > 0) {
+      html += `<div style="font-size:13px;color:var(--accent);margin:8px 0 12px;letter-spacing:2px;">焦 虑 记 录</div>`;
+      records.forEach(r => {
+        html += `<div class="record-card">
+          <div class="record-time">${r.time}</div>
+          ${r.trigger ? `<div class="record-field"><strong>触发</strong>${escapeHtml(r.trigger)}</div>` : ''}
+          ${r.body ? `<div class="record-field"><strong>身体</strong>${escapeHtml(r.body)}</div>` : ''}
+          ${r.thought ? `<div class="record-field"><strong>念头</strong>${escapeHtml(r.thought)}</div>` : ''}
+          ${r.urge ? `<div class="record-field"><strong>冲动</strong>${escapeHtml(r.urge)}</div>` : ''}
+          ${r.action ? `<div class="record-field"><strong>实做</strong>${escapeHtml(r.action)}</div>` : ''}
+        </div>`;
+      });
+    }
+    
+    if (reflections.length > 0) {
+      html += `<div style="font-size:13px;color:var(--accent);margin:24px 0 12px;letter-spacing:2px;">每 日 反 思</div>`;
+      reflections.forEach(r => {
+        html += `<div class="record-card">
+          <div class="record-time">${r.time}</div>
+          ${r.real ? `<div class="record-field"><strong>真实</strong>${escapeHtml(r.real)}</div>` : ''}
+          ${r.fake ? `<div class="record-field"><strong>表演</strong>${escapeHtml(r.fake)}</div>` : ''}
+          ${r.redo ? `<div class="record-field"><strong>重选</strong>${escapeHtml(r.redo)}</div>` : ''}
+        </div>`;
+      });
+    }
+    
+    list.innerHTML = html;
+  }
+  
+  function escapeHtml(s) {
+    return s.replace(/[&<>"']/g, c => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    })[c]);
+  }
+  
+  // ===== 呼吸引导 =====
+  let breathInterval = null;
+  let breathRound = 0;
+  let breathPhase = 0; // 0=inhale, 1=hold, 2=exhale
+  let breathCountdown = 0;
+  
+  function startBreathing() {
+    goPage('breathing');
+    resetBreathing();
+  }
+  
+  function resetBreathing() {
+    breathRound = 0;
+    breathPhase = 0;
+    breathCountdown = 0;
+    document.getElementById('breath-text').textContent = '准备';
+    document.getElementById('breath-count').textContent = '第 0 / 5 轮';
+    document.getElementById('breath-circle').className = 'breath-circle';
+    document.getElementById('breath-btn').textContent = '开始';
+    if (breathInterval) { clearInterval(breathInterval); breathInterval = null; }
+  }
+  
+  function toggleBreathing() {
+    if (breathInterval) {
+      stopBreathing();
+    } else {
+      runBreathing();
+    }
+  }
+  
+  function runBreathing() {
+    const circle = document.getElementById('breath-circle');
+    const text = document.getElementById('breath-text');
+    const count = document.getElementById('breath-count');
+    const btn = document.getElementById('breath-btn');
+    btn.textContent = '暂停';
+    
+    function nextPhase() {
+      if (breathPhase === 0) {
+        // 吸气 4 秒
+        circle.className = 'breath-circle inhale';
+        text.textContent = '吸气';
+        breathCountdown = 4;
+      } else if (breathPhase === 1) {
+        // 屏住 2 秒
+        circle.className = 'breath-circle hold';
+        text.textContent = '屏住';
+        breathCountdown = 2;
+      } else if (breathPhase === 2) {
+        // 呼气 8 秒
+        circle.className = 'breath-circle exhale';
+        text.textContent = '呼气';
+        breathCountdown = 8;
+      }
+    }
+    
+    nextPhase();
+    
+    breathInterval = setInterval(() => {
+      breathCountdown--;
+      if (breathCountdown <= 0) {
+        breathPhase++;
+        if (breathPhase > 2) {
+          breathPhase = 0;
+          breathRound++;
+          count.textContent = `第 ${breathRound} / 5 轮`;
+          if (breathRound >= 5) {
+            stopBreathing();
+            text.textContent = '完成';
+            count.textContent = '感受一下身体现在的状态';
+            return;
+          }
+        }
+        nextPhase();
+      }
+    }, 1000);
+  }
+  
+  function stopBreathing() {
+    if (breathInterval) { clearInterval(breathInterval); breathInterval = null; }
+    document.getElementById('breath-btn').textContent = '继续';
+  }
+  
+  // ===== 计时器 =====
+  let timerInterval = null;
+  let timerSeconds = 45 * 60;
+  let timerOriginal = 45 * 60;
+  let timerRunning = false;
+  
+  function startTimer(minutes) {
+    timerSeconds = minutes * 60;
+    timerOriginal = minutes * 60;
+    updateTimerDisplay();
+    goPage('timer');
+  }
+  
+  function updateTimerDisplay() {
+    const m = Math.floor(timerSeconds / 60);
+    const s = timerSeconds % 60;
+    document.getElementById('timer-display').textContent = 
+      `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  }
+  
+  function toggleTimer() {
+    const btn = document.getElementById('timer-btn');
+    const label = document.getElementById('timer-label');
+    
+    if (timerRunning) {
+      clearInterval(timerInterval);
+      timerRunning = false;
+      btn.textContent = '继续';
+      label.textContent = '已暂停';
+    } else {
+      timerRunning = true;
+      btn.textContent = '暂停';
+      label.textContent = '把手机放下,做点别的事';
+      timerInterval = setInterval(() => {
+        timerSeconds--;
+        updateTimerDisplay();
+        if (timerSeconds <= 0) {
+          clearInterval(timerInterval);
+          timerRunning = false;
+          btn.textContent = '完成';
+          label.textContent = '感受一下,现在怎么样?';
+          // 简单提示音(用 Web Audio API 生成)
+          try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.frequency.value = 528;
+            gain.gain.setValueAtTime(0, ctx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 0.05);
+            gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 1.5);
+            osc.start(); osc.stop(ctx.currentTime + 1.5);
+          } catch(e) {}
+        }
+      }, 1000);
+    }
+  }
+  
+  function resetTimer() {
+    if (timerInterval) clearInterval(timerInterval);
+    timerSeconds = timerOriginal;
+    timerRunning = false;
+    document.getElementById('timer-btn').textContent = '开始';
+    document.getElementById('timer-label').textContent = '点击开始';
+    updateTimerDisplay();
+  }
+  
+  // ===== 每日提醒(浏览器通知,需用户授权)=====
+  // 简单实现:打开应用时如果今天还没反思,提醒一下
+  window.addEventListener('load', () => {
+    const reflections = loadData('reflections');
+    if (reflections.length > 0) {
+      const last = reflections[0].time.split(' ')[0];
+      const today = nowStr().split(' ')[0];
+      if (last !== today) {
+        setTimeout(() => toast('今天还没做反思。需要的时候再来。'), 1500);
+      }
+    }
+  });
+</script>
+
+</body>
+</html>
